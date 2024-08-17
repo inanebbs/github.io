@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from 'lucide-react';
+import React from 'react';
+import { ChevronDown } from 'lucide-react';
 import TableOfContents from './components/TableOfContents';
 import ExecutiveSummary from './components/ExecutiveSummary';
 import CompanyProfileSlide from './components/CompanyProfile';
@@ -45,35 +45,28 @@ const sections = [
 ];
 
 const App: React.FC = () => {
-  const [activeSection, setActiveSection] = useState(0);
-
-  const nextSection = () => {
-    setActiveSection((prev) => (prev + 1) % sections.length);
-  };
-
-  const prevSection = () => {
-    setActiveSection((prev) => (prev - 1 + sections.length) % sections.length);
-  };
-
-  const ActiveComponent = sections[activeSection].component;
-
   return (
     <div className="app">
       <header className="header">
-        <h1>SalesGPT 簡報</h1>
-        <div className="navigation">
-          <button onClick={prevSection} className="nav-button">
-            <ChevronLeft />
-          </button>
-          <span>{sections[activeSection].title}</span>
-          <button onClick={nextSection} className="nav-button">
-            <ChevronRight />
-          </button>
-        </div>
+        <h1 className="title">SalesGPT 簡報</h1>
+        <nav className="navigation">
+          {sections.map((section, index) => (
+            <a key={index} href={`#section-${index}`} className="nav-link">
+              {section.title}
+            </a>
+          ))}
+        </nav>
       </header>
       <main className="main-content">
-        <ActiveComponent />
+        {sections.map((section, index) => (
+          <section key={index} id={`section-${index}`} className="section">
+            <section.component />
+          </section>
+        ))}
       </main>
+      <a href="#section-0" className="scroll-to-top">
+        <ChevronDown size={24} />
+      </a>
     </div>
   );
 };

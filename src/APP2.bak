@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from 'lucide-react';
+import React, { useRef, useEffect } from 'react';
+import { ChevronDown } from 'lucide-react';
+
+import './App.css';
+import CoverSlide from './components/CoverSlide';
 import TableOfContents from './components/TableOfContents';
 import ExecutiveSummary from './components/ExecutiveSummary';
 import CompanyProfileSlide from './components/CompanyProfile';
@@ -18,9 +21,6 @@ import RiskAssessment from './components/RiskAssessment';
 import FutureDevelopment from './components/FutureDevelopment';
 import ProjectSummary from './components/ProjectSummary';
 import ThankYouPage from './components/ThankYouPage';
-
-import './App.css';
-import CoverSlide from './components/CoverSlide';
 
 const sections = [
   { title: "封面", component: CoverSlide },
@@ -45,35 +45,37 @@ const sections = [
 ];
 
 const App: React.FC = () => {
-  const [activeSection, setActiveSection] = useState(0);
+  const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  const nextSection = () => {
-    setActiveSection((prev) => (prev + 1) % sections.length);
+  useEffect(() => {
+    sectionRefs.current = sectionRefs.current.slice(0, sections.length);
+  }, []);
+
+  const scrollToNextSection = (index: number) => {
+    if (index < sections.length - 1) {
+      sectionRefs.current[index + 1]?.scrollIntoView({ behavior: 'smooth' });
+    }
   };
-
-  const prevSection = () => {
-    setActiveSection((prev) => (prev - 1 + sections.length) % sections.length);
-  };
-
-  const ActiveComponent = sections[activeSection].component;
 
   return (
     <div className="app">
-      <header className="header">
-        <h1>SalesGPT 簡報</h1>
-        <div className="navigation">
-          <button onClick={prevSection} className="nav-button">
-            <ChevronLeft />
-          </button>
-          <span>{sections[activeSection].title}</span>
-          <button onClick={nextSection} className="nav-button">
-            <ChevronRight />
-          </button>
+      {sections.map((section, index) => (
+        <div
+          key={index}
+          ref={el => sectionRefs.current[index] = el}
+          className="section-container"
+        >
+          <section.component />
+          {index < sections.length - 1 && (
+            <button
+              className="scroll-button"
+              onClick={() => scrollToNextSection(index)}
+            >
+              <ChevronDown size={24} />
+            </button>
+          )}
         </div>
-      </header>
-      <main className="main-content">
-        <ActiveComponent />
-      </main>
+      ))}
     </div>
   );
 };
